@@ -1,132 +1,130 @@
-import Link from 'next/link';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export default function Home() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [file, setFile] = useState(null);
+  const [fileContent, setFileContent] = useState('');
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const [entriesCount, setEntriesCount] = useState(1)
+
+
+  const handleNameChange = (e) => {
+    setName(e.target.value);
+    checkButtonEnabled();
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    checkButtonEnabled();
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    checkButtonEnabled();
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const fileContent = event.target.result;
+      setFileContent(fileContent);
+    };
+    reader.readAsText(selectedFile);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setEntriesCount(entriesCount + 1)
+    Swal.fire({
+      title: 'Success',
+      text: `${entriesCount} entries successfully submitted`,
+      icon: 'success',
+      confirmButtonText: 'Go to My Entries',
+      iconColor: "blue",
+      cancelButtonText: "Cancel",
+      cancelButtonColor: "rgba(48, 98, 200, 0.5)",
+      showCancelButton: true,
+      focusCancel: true
+
+    })
+    setName("")
+    setEmail("")
+    setFile(null)
+    setFileContent("")
+    setIsButtonEnabled(false)
+
+  };
+
+  const checkButtonEnabled = () => {
+    if (name.length > 2 && email && file) {
+      setIsButtonEnabled(true);
+    } else {
+      setIsButtonEnabled(false);
+    }
+  };
   return (
-    <div className={styles.container}>
+    <div className={styles.myformsection}>
       <Head>
-        <title>Create Next App</title>
+        <title>Form App</title>
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
       </Head>
 
+
       <main>
-        <h1 className={styles.title}>
-          Read <Link href="/posts/first-post">this page!</Link>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div className={styles.header}>
+          <span className={styles.leftarrow}><img src='/LeftArrow.svg' alt='arrow-icon' /></span><span className={styles.submittext}>Submit Form</span>
         </div>
+        <form onSubmit={handleSubmit} >
+          <div className={styles.formgroup}>
+            <label className={styles.label}>Full Name</label>
+            <input type="text" value={name} onChange={handleNameChange} placeholder="Full Name" className={styles.inputfeild} />
+          </div>
+
+          <div className={styles.formgroup}>
+            <label className={styles.label}>Email</label>
+            <span>
+              <span className={styles.emailicon}><img src='/Email.svg' alt='email-icon' /></span>
+              <input type="email" value={email} onChange={handleEmailChange} placeholder="Email" className={styles.inputfeild} id='input' />
+            </span>
+          </div>
+
+          <div className={styles.formgroup}>
+            <label className={styles.label}>Upload JSON File</label>
+            <div className={styles.filesection}>
+              <label className={styles.filelabel}>
+                <input type="file" accept=".json" onChange={handleFileChange} className={styles.fileinputfeild} />
+                <div><img src='/File.svg' alt='file-icon' /></div>
+                <div className="browse-text">Browse File</div>
+              </label>
+            </div>
+
+
+            <div className={styles.filecontents}>
+              <label className={styles.filecontentslabel}>File Contents:</label>
+              <textarea
+                value={fileContent}
+                rows="8"
+                readOnly
+                className={styles.textarea}
+              ></textarea>
+            </div>
+
+          </div>
+
+          <div className={styles.submitbtnsection}>
+            <button type="submit" disabled={!isButtonEnabled} className={`${styles.submitbtn} ${isButtonEnabled ? styles.selected : ""} `}>
+              Submit
+            </button>
+          </div>
+        </form>
       </main>
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        footer img {
-          margin-left: 0.5rem;
-        }
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-        }
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family:
-            Menlo,
-            Monaco,
-            Lucida Console,
-            Liberation Mono,
-            DejaVu Sans Mono,
-            Bitstream Vera Sans Mono,
-            Courier New,
-            monospace;
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            Segoe UI,
-            Roboto,
-            Oxygen,
-            Ubuntu,
-            Cantarell,
-            Fira Sans,
-            Droid Sans,
-            Helvetica Neue,
-            sans-serif;
-        }
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
     </div>
   );
 }

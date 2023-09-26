@@ -1,1 +1,6 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+To run the project 
+Use the below command: 
+```
+npm run dev
+
+```
