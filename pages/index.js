@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 
 export default function Home() {
@@ -14,26 +14,52 @@ export default function Home() {
 
   const handleNameChange = (e) => {
     setName(e.target.value);
-    checkButtonEnabled();
+    // checkButtonEnabled();
   };
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    checkButtonEnabled();
+    // checkButtonEnabled();
   };
+
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+  //   setFile(selectedFile);
+  //   // checkButtonEnabled();
+
+  //   const reader = new FileReader();
+  //   reader.onload = function (event) {
+  //     const fileContent = event.target.result;
+  //     setFileContent(fileContent);
+  //   };
+  //   reader.readAsText(selectedFile);
+  // };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    checkButtonEnabled();
 
     const reader = new FileReader();
     reader.onload = function (event) {
       const fileContent = event.target.result;
       setFileContent(fileContent);
+
+      // Attempt to parse the JSON content
+      try {
+        const parsedData = JSON.parse(fileContent);
+        console.log(parsedData)
+
+
+        // If JSON is valid, enable the submit button
+        setIsButtonEnabled(name.length >= 2 && email && parsedData);
+      } catch (error) {
+        alert('Error parsing JSON', error);
+        setIsButtonEnabled(false);
+      }
     };
     reader.readAsText(selectedFile);
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,13 +84,15 @@ export default function Home() {
 
   };
 
-  const checkButtonEnabled = () => {
-    if (name.length > 2 && email && file) {
+  useEffect(() => {
+    // Use the useEffect hook to observe changes in name, email, and file
+    if (name.length >= 2 && email && file) {
       setIsButtonEnabled(true);
     } else {
       setIsButtonEnabled(false);
     }
-  };
+  }, [name, email, file]);
+
   return (
     <div className={styles.myformsection}>
       <Head>
